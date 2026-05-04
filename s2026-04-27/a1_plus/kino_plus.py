@@ -11,7 +11,7 @@ def getAge(FSK: int, IS_BORING: float) -> int:
     if FSK <= 10:
         # chance to be a kid (must be high, cause has a FSK 10)
         # since kids go not alone, at least half kids, half parents
-        chance = 0.5
+        chance = 0.75
         p = random()
         age = randint(4,10) if p < chance else randint(20,100)
     elif FSK <= 16:
@@ -35,8 +35,16 @@ def getAge(FSK: int, IS_BORING: float) -> int:
     return age
 
 
+def print_summary(FSK: int, OCC_RATE: float, MAX_OCC: float) -> None:
+    """prints a summary on the screen"""
+    print(f"\nSummary:\n---")
+    print(f"FSK:                     {FSK: 6} years")
+    print(f"Desired occupation rate: {int(OCC_RATE * 100): 6}%")
+    print(f"Maximal Capacity:        {MAX_OCC: 6} places")
+
+
 def print_room(ROOM) -> None:
-    print("\n")
+    print("")
     for r in ROOM:
         for c in r:
             if c > 0:
@@ -44,7 +52,6 @@ def print_room(ROOM) -> None:
             else:
                 print(f" __ ", end="")
         print()
-    print("\n\n")
 
 def main():
 
@@ -98,7 +105,7 @@ def main():
     MIN_RATE = 0.2
     OCC_RATE = max(random(),MIN_RATE)
 
-    print(f"Summary:\n---\nFSK:{FSK: 25} years\nDesired occupation rate:{int(OCC_RATE * 100): 5}%\nMaximal Capacity:{MAX_OCC: 11} places\n\n")
+    print_summary(FSK, OCC_RATE, MAX_OCC)
 
     # ok! let's use probability. random() returns a number between 0 and 1; and this is our room occ rate.
     # but it means also, that each chair has a change of OCC_RATE to be occupied or not,
@@ -124,7 +131,7 @@ def main():
     # and we can calculate the effective occupation rate and compare with the theoretical rate above
     # this formula is the solution from question A1
     gasts = sum([sum([1 if chair>0 else 0 for chair in row]) for row in ROOM])
-    print(f"calculated occupation rate: {int(OCC_RATE * 100):4}%")
+    print(f"\ncalculated occupation rate: {int(OCC_RATE * 100):4}%")
     print(f"effective occupation rate : {int(gasts/MAX_OCC * 100):4}%")
     print("\n\n")
 
