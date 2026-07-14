@@ -34,24 +34,41 @@ class Automatic:
         Automatic.Serial.append(number)
 
     def give_change(self, price: float, money:float) -> float:
+        to_give_back = {}
+        change = 0.0
         if price > money:
             raise ValueError("not enough money. operation canceled")
         elif price == money:
-            return 0.0
+            pass
         else:
             change = money - price
             in_cash = sorted(self.cash.keys())
             if change < min(in_cash):
+                # it occurs if "change to give back" < "the smallste bill possible available"
                 raise ValueError("change not possible due not enough bills. operation canceled.")
             else:
-                # TODO - do it better ! ! !
-                return change
-            
+                rest = change
+                while rest > 0:
+                    if rest < 0:
+                        raise ValueError("Error on calculate change.")
+                    bill = max(list(filter(lambda x: x <= rest, in_cash)))
+                    q = rest // bill
+                    rest -= bill * q
+                    if self.cash[bill] - q >= 0:
+                        to_give_back[bill] = q
+                        self.cash[bill] -= q
+                    else:
+                        to_give_back[bill] = self.cash[bill]
+                        rest -= bill * self.cash[bill]
+                        self.cash[bill] = 0
+                        in_cash.remove(bill)
+
+        return (change, to_give_back)            
 
 
     def sell(self, 
             option: TicketOptions, 
-            money: float, 
+            money: dict, 
             hasSubscription: bool = False, 
             create_at: int = 0,
             allowSauna: bool = False,
@@ -65,15 +82,34 @@ class Automatic:
         # if money < option.value[1]:
         #     return "Please insert more money. The operation will be canceled."
         
+        # DONE: money and cash as dict. when pay, add bills -> update cash.
+        for k,v in money.items():
+            self.cash[k] += v
+        # TODO: what to do with change here ?!?!?!
+        # TODO: it must go to the client, but how into this reduced app version ?!?!?!
         change = self.give_change(option.value[1], money)
+
 
         # Free ticket for subscription holders
         if hasSubscription:
-            ticket = Ticket(option.DAY_PASS, create_at, allowSauna, self.number, client)
-        else:
-            ticket = Ticket(option, create_at, allowSauna, self.number, client)        
-
+            option = TicketOptions.DAY_PASS
+        
+        ticket = Ticket(option, create_at, allowSauna, self.number, client)        
         return ticket
+    
+    def get_cash(self):
+        return self.cash
+    
+    def report_cash(self):
+        total = 0
+        report = "\n - - - -\nReport Cash\n - - - - \n"
+        for k, v in self.cash.items():
+            tt = k * v
+            total += tt
+            report += f"from {v:4d} of {k:6.2f}, total of {tt:8.2f}\n"
+        print(report)
+        print(f"total amount in cash of {total}\n - - - -\n")
+
 
     def __str__(self) -> str:
         """Return a readable representation of the automatic."""

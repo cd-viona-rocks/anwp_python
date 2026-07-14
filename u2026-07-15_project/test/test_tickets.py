@@ -1,10 +1,15 @@
 # test class Tickets
 from datetime import datetime, timedelta
 
+import sys
+from pathlib import Path
+
+project_root = Path(__file__).resolve().parents[1]
+classes_path = project_root / "classes"
+sys.path.insert(0, str(classes_path))
+
 from enumerations import TicketOptions
 from tickets import Ticket
-
-from logs import TICKETS
 
 create_at = datetime.now().timestamp()
 

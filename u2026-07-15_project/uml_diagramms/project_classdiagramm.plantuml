@@ -1,0 +1,67 @@
+@startuml
+' Project class diagram for u2026-07-15_project/classes
+
+skinparam classAttributeIconSize 0
+hide empty members
+
+class Automatic {
+  - Serial : list
+  - number : int
+  - cash : dict
+  + __init__(number:int, cash:dict)
+  + give_change(price:float, money:float) : tuple
+  + sell(option:TicketOptions, money:dict, hasSubscription:bool=False, create_at:int=0, allowSauna:bool=False, client:int=None) : Ticket
+  + get_cash() : dict
+  + report_cash()
+  + __str__() : str
+}
+
+class Ticket {
+  - ticket_number : int
+  - ticket_type : str
+  - ticket_code : int
+  - description : str
+  - price : float
+  - sauna : bool
+  - created_at : int
+  - deadline : int
+  - automatic : int
+  - client : int
+  + __init__(ticket_type:TicketOptions=None, created_at:int=0, allows_sauna:bool=False, automatic:int=None, client:int=None)
+  + set_automatic(n:int)
+  + set_deadline()
+  + include_sauna()
+  + log_ticket()
+  + report()
+  + __str__() : str
+}
+
+package TICKETS <<database>> {
+}
+
+enum WorkingHours {
+  OPENING
+  CLOSING
+}
+
+enum TicketOptions {
+  SHORT_TERM
+  LONG_TERM
+  DAY_PASS
+}
+
+enum Areas {
+  ENTRANCE
+  CHILD
+  SWIMMING
+  SAUNA
+}
+
+Automatic ..> Ticket : creates
+Automatic ..> TicketOptions : uses
+Automatic ..> WorkingHours : uses
+Ticket ..> WorkingHours : uses
+Ticket ..> TicketOptions : uses
+Ticket ..> TICKETS : logs into
+
+@enduml
