@@ -15,14 +15,20 @@ The label [EXTENSION] marks possible continuations for this project.
 ### Your tasks are:
 
 **Mandatory (must be done within given BG)**  
+
 1. implement the classes Automatic and Ticket according to the use cases under.  
    1.1. create test cases for each class  
    1.2. run the test cases in separated files (use from filename import classname)  
 
 **Extension (can be done acoording to working hours availability)**  
+
 2. Run a simple case, where one / some clients buy ticktes in different situations.  
    2.1. use the scenario under to simulate one case  
    2.2. as extension you can implement a small simulation according to the the section "Running it"  
+
+3. With in the implementation of the case "Running it" you can create te following diagramms
+   3.1. Activity Diagramm
+   3.2. Sequence Diagramm
 
 ### HINT
 
