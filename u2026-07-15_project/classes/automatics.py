@@ -1,8 +1,8 @@
 
 from datetime import datetime
-from tickets import Ticket
 
-from enumerations import WorkingHours, TicketOptions
+from classes.tickets import Ticket
+from classes.enumerations import WorkingHours, TicketOptions
 
 class Automatic:
     """Represents a ticket vending machine for the swimming center.
@@ -33,7 +33,7 @@ class Automatic:
         self.cash = cash
         Automatic.Serial.append(number)
 
-    def give_change(self, price: float, money:float) -> float:
+    def give_change(self, price: float, money: float) -> dict:
         to_give_back = {}
         change = 0.0
         if price > money:
@@ -42,7 +42,7 @@ class Automatic:
             pass
         else:
             change = money - price
-            in_cash = sorted(self.cash.keys())
+            in_cash = sorted(self.cash.keys()) # [1,2,5,..,500]
             if change < min(in_cash):
                 # it occurs if "change to give back" < "the smallste bill possible available"
                 raise ValueError("change not possible due not enough bills. operation canceled.")
@@ -50,7 +50,7 @@ class Automatic:
                 rest = change
                 while rest > 0:
                     if rest < 0:
-                        raise ValueError("Error on calculate change.")
+                        raise ValueError("not possible to give change. please use other bills.")
                     bill = max(list(filter(lambda x: x <= rest, in_cash)))
                     q = rest // bill
                     rest -= bill * q
@@ -63,39 +63,39 @@ class Automatic:
                         self.cash[bill] = 0
                         in_cash.remove(bill)
 
-        return (change, to_give_back)            
+        return to_give_back
 
 
     def sell(self, 
             option: TicketOptions, 
-            money: dict, 
+            cash: dict, 
             hasSubscription: bool = False, 
             create_at: int = 0,
             allowSauna: bool = False,
             client: int = None
-        ) -> Ticket:
+        ) -> dict:
         """Simulate a ticket sale for one supported area option."""
         if option not in TicketOptions:
             return f"Invalid option: {option}"
 
-        # - - replaced by the logic give_change - - 
-        # if money < option.value[1]:
-        #     return "Please insert more money. The operation will be canceled."
-        
-        # DONE: money and cash as dict. when pay, add bills -> update cash.
-        for k,v in money.items():
-            self.cash[k] += v
-        # TODO: what to do with change here ?!?!?!
-        # TODO: it must go to the client, but how into this reduced app version ?!?!?!
-        change = self.give_change(option.value[1], money)
-
-
-        # Free ticket for subscription holders
         if hasSubscription:
+            # Free ticket for subscription holders
             option = TicketOptions.DAY_PASS
+            change = cash
+        else:
+            # DONE: cash as dict; money is the total of cash (float). when pay, add bills -> update cash.
+            for k,v in cash.items():
+                self.cash[k] += v
+            change = self.give_change(option.value[1], sum([k*v for k,v in cash.items()]))
+
+            # - - replaced by the logic give_change - - 
+            # if money < option.value[1]:
+            #     return "Please insert more money. The operation will be canceled."
         
-        ticket = Ticket(option, create_at, allowSauna, self.number, client)        
-        return ticket
+        return {
+            "ticket": Ticket(option, create_at, allowSauna, self.number, client) ,
+            "change": change
+        }
     
     def get_cash(self):
         return self.cash

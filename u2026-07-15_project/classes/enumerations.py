@@ -9,7 +9,8 @@ class WorkingHours(Enum):
 
 
 class TicketOptions(Enum):
-    """Enum for ticket options available in the swimming center. (ID, price, deadline, description)
+    """Enum for ticket options available in the swimming center. 
+    OPTION_NAME = (ID, price, deadline, description)
     
     SHORT_TERM: 3 hours ticket.
     LONG_TERM: Either morning, afternoon or evening ticket, up to 6 hours.

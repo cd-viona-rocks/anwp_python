@@ -39,7 +39,7 @@ a1.report_cash()
 # returns 5: 1 -> ok! (one bill of 5.00)
 # back = a1.give_change(5,10)
 
-# returns  10: 4, 5: 1 - ok! (4x bill of 10 + 1x bill of 5)
+# returns  {10: 4, 5: 1 }- ok! (4x bill of 10 + 1x bill of 5)
 back = a1.give_change(5,50)
 
 print(f"back {back}")

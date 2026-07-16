@@ -1,32 +1,38 @@
 from datetime import datetime, timedelta
-from enumerations import WorkingHours, TicketOptions
-from logs import TICKETS
+
+from classes.enumerations import WorkingHours, TicketOptions
+from classes.logs import TICKETS
 
 
 class Ticket:
-    """Represents a ticket for the swimming center.
+    """Represent a ticket for the swimming center.
 
-    This class models aggregation: the ticket can exist independently of a
-    swimming center and may be attached or removed without owning the center's
-    lifecycle.
+    The ticket will be created for the automatic machine and can be
+    assigned (attached) to a client.
     """
 
-    def __init__(self, 
-            ticket_type: TicketOptions = None, 
-            created_at: int = 0, 
-            allows_sauna: bool = False,
-            automatic: int = None,
-            client: int = None
-        ):
-        """Create a Ticket instance.
+    def __init__(
+        self,
+        ticket_type: TicketOptions = None,
+        created_at: int = 0,
+        allows_sauna: bool = False,
+        automatic: int = None,
+        client: int = None,
+    ):
+        """Initialize a ticket instance.
 
         Args:
-            ticket_type: The type of the ticket (e.g., "ENTRANCE", "CHILD").
-            price: The price of the ticket.
-            dealine: The deadline for the ticket in unix timestamp (optional).
+            ticket_type: The ticket option from :class:`TicketOptions`.
+            created_at: Unix timestamp for the ticket creation time.
+            allows_sauna: Whether the ticket includes sauna access.
+            automatic: Identifier of the automatic that created the ticket.
+            client: Identifier of the client associated with the ticket.
+
+        Raises:
+            ValueError: If the ticket type is not valid.
         """
 
-        if ticket_type == None: 
+        if ticket_type not in TicketOptions:
             raise ValueError("Ticket type must be one of TicketOptions")
 
         self.ticket_number = id(self)  # Unique identifier for the ticket
@@ -39,17 +45,29 @@ class Ticket:
         self.deadline = None
         self.automatic = automatic
         self.client = client
-        
+
         self.set_deadline()
-        if allows_sauna: self.include_sauna()
+        if allows_sauna:
+            self.include_sauna()
 
         self.log_ticket()
 
     def set_automatic(self, n: int):
+        """Assign the automatic machine associated with the ticket.
+
+        Args:
+            n: The identifier of the automatic.
+        """
         self.automatic = n
 
     def set_deadline(self):
-        """Set the creation time for the ticket. sets automatically deadline."""
+        """Calculate and store the ticket deadline.
+
+        The deadline depends on the ticket type:
+        - DAY_PASS: the deadline is the configured closing time of the day.
+        - SHORT_TERM and LONG_TERM: the deadline is the configured duration
+          or the closing time, whichever comes first.
+        """
 
         created_dt = datetime.fromtimestamp(self.created_at)
         closing_dt = created_dt.replace(
@@ -70,24 +88,29 @@ class Ticket:
                 period_ends = closing_dt
             self.deadline = int(period_ends.timestamp())
         else:
-            raise ValueError(f"Invalid ticket type. Must be one {[o.name for o in TicketOptions]}")
+            raise ValueError(
+                f"Invalid ticket type. Must be one {[o.name for o in TicketOptions]}"
+            )
 
     def include_sauna(self):
+        """Add sauna access to the ticket and increase the price."""
         self.price += 1.5
         self.sauna = True
 
     def log_ticket(self):
-        """Log the ticket information to the database."""
+        """Store the ticket in the ticket registry."""
         TICKETS[self.ticket_number] = self
         # print(TICKETS)
 
     @classmethod
     def report(self):
+        """Print a summary of all created tickets."""
         print(f"\n\ntotal of tickets created: {len(TICKETS)}")
         print(" - - - -\nReport\n - - - -")
         for t in TICKETS.values():
             print(t)
 
     def __str__(self):
+        """Return a readable string representation of the ticket."""
         return f"Ticket(type={self.ticket_type}, number={self.ticket_number}, sauna={self.sauna}, price={self.price}, deadline={self.deadline}, automatic={self.automatic}, client={self.client})"
     
