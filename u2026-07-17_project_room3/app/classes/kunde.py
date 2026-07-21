@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
-from person import Person
-from pizza import Pizza
+from classes.person import Person
+from classes.pizza import Pizza
 
 
 class Kunde(Person):
@@ -19,7 +19,9 @@ class Kunde(Person):
                 person_args[key] = kwargs[key]
 
         super().__init__(**person_args)
-        self.kundennummer: str = kwargs.get("kundennummer", "")
+        self.kundennummer: str = kwargs.get("client_number", "")
+
+        # *** NOTE : for instantiation, use person_id as client_nr
 
     # + auswahlPizza() : void
     def auswahlPizza(self) -> None:

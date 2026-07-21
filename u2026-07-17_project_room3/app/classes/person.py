@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 class Person:
     """Basisklasse für Personenobjekte."""
-    PERMITTED_ATTR = ["name", "strasse", "hausnummer", "plz", "telefon", "id"]
+    PERMITTED_ATTR = ["name", "street_name", "street_number", "postal_code", "telefon_number", "id"]
     ERROR_ATTR = f"Die Attributen müssen genau die folgenden sein: {', '.join([a for a in PERMITTED_ATTR])}"
 
     def __new__(cls, *args: Any, **kwargs: Any) -> "Person":

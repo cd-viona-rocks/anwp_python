@@ -1,4 +1,5 @@
 from typing import Any, Dict
+from random import choice
 
 from person import Person
 from bestellung import Bestellung
@@ -18,8 +19,12 @@ class Lieferant(Person):
                 person_args[key] = kwargs[key]
 
         super().__init__(**person_args)
-        self.fahrzeugKlasse: str = kwargs.get("fahrzeugKlasse", "")
-        self.standort: str = kwargs.get("standort", "")
+        # self.fahrzeugKlasse: str = kwargs.get("vehicle_type", "")
+        self.fahrzeugKlasse: str = choice(["Auto", "Truck", "Bicicle", "Motocicle"])
+        self.standort: str = kwargs.get("city", "")
+
+        # get vehicle from choice(["Auto", "Truck", "Bicicle", "Motocicle"])
+        # get standort from city
 
     # + lieferadresseAnzeigen(bestellung : Bestellung) : string
     def lieferadresseAnzeigen(self, bestellung: Bestellung) -> str:

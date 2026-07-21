@@ -18,7 +18,7 @@ class Mitarbeiter(Person):
                 person_args[key] = kwargs[key]
 
         super().__init__(**person_args)
-        self.mitarbeiternummer: str = kwargs.get("mitarbeiternummer", "")
+        self.mitarbeiternummer: str = kwargs.get("employee_number", "")
 
     # + bestellungBestätigen(bestellung : Bestellung) : void
     def bestellungBestaetigen(self, bestellung: Bestellung) -> None:
