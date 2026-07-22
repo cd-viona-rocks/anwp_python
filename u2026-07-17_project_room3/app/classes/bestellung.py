@@ -1,7 +1,8 @@
 from typing import List
 from typing import Any, Dict
 
-from .pizza import Pizza
+from classes.pizza import Pizza
+from classes.kunde import Kunde
 
 class Bestellung:
     PERMITTED_ATTR = ["bestellnummer", "pizzen", "datum", "status"]

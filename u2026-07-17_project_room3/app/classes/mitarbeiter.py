@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
-from person import Person
-from bestellung import Bestellung
+from classes.person import Person
+from classes.bestellung import Bestellung
 
 class Mitarbeiter(Person):
     """Repräsentiert einen Mitarbeiter aus der Klasse Person."""

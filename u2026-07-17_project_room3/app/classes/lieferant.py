@@ -1,8 +1,8 @@
 from typing import Any, Dict
 from random import choice
 
-from person import Person
-from bestellung import Bestellung
+from classes.person import Person
+from classes.bestellung import Bestellung
 
 class Lieferant(Person):
     """Repräsentiert einen Lieferant aus der Klasse Person."""

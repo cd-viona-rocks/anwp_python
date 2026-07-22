@@ -2,7 +2,7 @@ class Pizza:
     PERMITTED_ATTR = ["pizzaId", "name", "groesse", "preis"]
     ERROR_ATTR = f"Die Attributen müssen genau die folgenden sein: {', '.join([a for a in PERMITTED_ATTR])}"
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: any) -> None:
         """Initialisiert Attribute über Schlüsselwortargumente.
 
         Args:
