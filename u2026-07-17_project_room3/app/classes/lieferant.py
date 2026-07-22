@@ -7,6 +7,8 @@ from classes.bestellung import Bestellung
 class Lieferant(Person):
     """Repräsentiert einen Lieferant aus der Klasse Person."""
 
+    PERMITTED_ATTR = [*Person.PERMITTED_ATTR, "fahrzeugKlasse", "city"]
+
     def __init__(self, **kwargs: Any) -> None:
         """Initialisiert einen Kunden.
 

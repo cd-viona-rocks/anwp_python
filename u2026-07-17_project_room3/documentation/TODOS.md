@@ -9,7 +9,7 @@ Tasks Notation:
  
 ## 3. Ihr Auftrag (Task Description TD)
 
-Entwickeln Sie auf Basis der vorliegenden Diagramme eine **(TD001)** lauffähige Terminalanwendung (Kommandozeile), die den Bestellprozess von PizzaFlow aus Kundensicht simuliert. Eine grafische Oberfläche wird nicht erwartet – Ein- und Ausgabe erfolgen über die Konsole. 
+Entwickeln Sie auf Basis der vorliegenden Diagramme **(TD001)** eine lauffähige Terminalanwendung (Kommandozeile), die den Bestellprozess von PizzaFlow aus Kundensicht simuliert. Eine grafische Oberfläche wird nicht erwartet – Ein- und Ausgabe erfolgen über die Konsole. 
 
  [ ] TODO **TD001** lauffähige Terminalanwendung (siehe 3.1) aus Kundensicht
 

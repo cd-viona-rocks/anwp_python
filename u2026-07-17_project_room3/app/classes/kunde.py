@@ -7,6 +7,8 @@ from classes.pizza import Pizza
 class Kunde(Person):
     """Repräsentiert einen Kunden aus der Klasse Person."""
 
+    PERMITTED_ATTR = [*Person.PERMITTED_ATTR, "client_number"]
+
     def __init__(self, **kwargs: Any) -> None:
         """Initialisiert einen Kunden.
 

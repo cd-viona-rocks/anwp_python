@@ -73,3 +73,6 @@ class Person:
         if key not in Person.PERMITTED_ATTR:
             raise ValueError(err_msg)
         return getattr(self, key, default)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return dict(self.__dict__)
