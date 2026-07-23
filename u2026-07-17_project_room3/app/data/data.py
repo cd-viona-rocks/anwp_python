@@ -25,16 +25,17 @@ PAYMENT_STATUS = {
 }
 
 # - - - PIZZA MENU / Skizze einer Pizza Datenbank - - -
+# extensible for a complete menu: pizzas, drinks, desserts, etc, then add key,value "type"
 
 PIZZAS = [
-    {"id": 10, "name":"Margherita", "size":"M", "price": 6.50, "currency":"EUR"},
-    {"id": 20, "name":"Salami", "size":"M", "price": 7.50, "currency":"EUR"},
-    {"id": 30, "name":"Funghi", "size":"M", "price": 7.90, "currency":"EUR"},
-    {"id": 40, "name":"Quattro Stagioni", "size":"G", "price": 9.50, "currency":"EUR"},
-    {"id": 50, "name":"Diavola", "size":"G", "price": 8.90, "currency":"EUR"},
+    {"id": "10", "name":"Margherita", "size":"M", "price": "6.50", "currency":"EUR"},
+    {"id": "20", "name":"Salami", "size":"M", "price": "7.50", "currency":"EUR"},
+    {"id": "30", "name":"Funghi", "size":"M", "price": "7.90", "currency":"EUR"},
+    {"id": "40", "name":"Quattro Stagioni", "size":"G", "price": "9.50", "currency":"EUR"},
+    {"id": "50", "name":"Diavola", "size":"G", "price": "8.90", "currency":"EUR"},
 ]
 
-# - - - Skizze einer Bestellungsdatenbank - - - 
+# - - - Skizze einer M:N Bestellungsdatenbank - - - 
 
 # Bestellungen
 # {client_id: str, pizza_id: str[], order_status: str, payment_status: str}

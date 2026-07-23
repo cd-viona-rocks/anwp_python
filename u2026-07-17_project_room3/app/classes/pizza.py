@@ -1,5 +1,7 @@
 class Pizza:
-    PERMITTED_ATTR = ["pizzaId", "name", "groesse", "preis"]
+    """assumed, all prices in EURO"""
+
+    PERMITTED_ATTR = ["id", "name", "size", "price"]
     ERROR_ATTR = f"Die Attributen müssen genau die folgenden sein: {', '.join([a for a in PERMITTED_ATTR])}"
 
     def __init__(self, **kwargs: any) -> None:

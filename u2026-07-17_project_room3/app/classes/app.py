@@ -2,18 +2,25 @@ from datetime import datetime
 import sys
 from pathlib import Path
 import pandas as pd
+from random import random
 
 from hashlib import pbkdf2_hmac
 from hmac import compare_digest
 from base64 import b64decode  # b64encode when create hashes to save
 
-from data.data import *
 from data.log import LOG
+from data.data import *
+# from data/data.py import PIZZAS, ORDERS as list[dict] and it works as a skizze for DB
+# an instantiation is not necessary, because the data can be directly processed as python dict
 
 from classes.person import Person
 from classes.kunde import Kunde
 from classes.mitarbeiter import Mitarbeiter
 from classes.lieferant import Lieferant
+
+# from classes.pizza import Pizza
+# from classes.bestellung import Bestellung
+# NOTE: see the comments at import data
 
 SEPARATOR = "\n" + " ="*20 + "\n"
 
@@ -26,10 +33,10 @@ class App:
         self.mitarbeiter = []
         self.lieferanten = []
 
-        self.user_loggedin = None
-        self.user_classes = []
-
         self.hashes = []
+
+        self.user_classes = []
+        self.user_loggedin = None
 
     def run(self):
         """runnable methods for execution."""
@@ -37,25 +44,19 @@ class App:
         print(SEPARATOR + "  starting system.  " + SEPARATOR)
         self.log_event("system starts.")
 
-        self.load_all_people()
+        # since this version doesn't use a database, all data is loaded either 
+        # from a csv file or from a python variable, as a list (see method docs)
+        self.load_data()
+
+        self.log_event("loaded pizzas menu by imports")
+        self.log_event("loaded orders list by imports")
+        self.log_event("loaded logs by imports")
 
         # ONLY FOR TESTS
         msg = f"\ntry this examples:\n{self.kunden[0]}\n{self.mitarbeiter[0]},\n{self.lieferanten[0]}\n"
         print(msg)
 
-        # Activity Block "Anmelden"
-        user_class = self.screen_initial()
-        response = self.user_login(*user_class)
-
-        # ONLY FOR TESTS
-        print(f"\nresponse from login: \n{response}\n")
-
-        # Activity Block "Kunden erkennen"
-        if response["access"]:
-            self.user_loggedin = response["user"]
-
-
-
+        self.screen_initial()
 
     def terminate(self):
         print(SEPARATOR + "\n  closing system.  \n" + SEPARATOR)
@@ -78,12 +79,13 @@ class App:
         # print(f"LOG at {log_time}: {event_description}")           
 
 
-    # people methods
+    # data methods
 
-    def load_all_people(self) -> None:
+    def load_data(self) -> None:
         """loads some pre defined people from people.csv,
          separate them into clients, employees and deliveries;
-         and save hashes for client login at password.csv
+         and save hashes for client login at password.csv;
+         load pizza menu from data.data.PIZZAS (a python list).
          
          the csv files should be seen as a possible extension for DB see file: 
          Aufgabenstellung, 3.3. Optional / Exweiterung: EX003 and EX004
@@ -155,13 +157,26 @@ class App:
 
     # - - - screen methods - - - 
 
+    def print_message(self, text: str, n: int = 4) -> None:
+        """prints a default one row message between empty rows and with n indentation
+           don't use it for multi rows messages. instead considere use print_option_list.
+        """
+        print("\n" + " "*n + text + " "*n + "\n")
+
+    def print_warning(self, text: str, n: int = 4) -> None:
+        """prints a warning on the screen"""
+        print("\n" + " !"*n + " "*4 + text +" "*4 + " !"*n + "\n")
+        self.log_event(text)
+
     def print_option_list(self, title: str, option_list: dict) -> None:
         msg = " "*4 + f"{title}:\n" + " "*4 + " -"*16 + "\n"
         for k,v in option_list.items():
             msg += " "*4 + f"{k}: {v}\n"
         print(msg)
 
+
     def screen_initial(self) -> int:
+        """MR001 'Anmelden' """
         counter = 0
         o = -1
         title = "Bitte wählen Sie eine Option"
@@ -188,11 +203,12 @@ class App:
 
         if o not in options.keys() or o < 0:
             raise ValueError("invalid value for option at this point.")
-        
-        if o == 0:
+        elif o == 0:
             self.terminate() 
+        else:
+            self.user_login(o,options[o]) 
 
-        return (o,options[o]) 
+        raise InterruptedError("unexpected point at App.screen_initial() have been reached.")
 
 
     def user_login(self, user_class: int, user_mode: str) -> bool:
@@ -208,6 +224,9 @@ class App:
         msg += "\n" + " "*4 + " -"*20
         msg += "\n" + " "*4 + "Bitte geben Sie Ihren Benutzername und Passwort Kommagetrennt"
         msg += "\n" + " "*4 + "e.g. maxsupermustermann, banana1234 oder <Enter> zu Abbrechen."
+        print(SEPARATOR + msg)
+
+        # - - - OPTION BLOCK ONE - - -
 
         stop1, stop2 = False, False
         while not stop1:
@@ -215,7 +234,6 @@ class App:
             if c1 > 5:
                 raise InterruptedError("tries exceeded. app execution interrupted.")
             try:
-                print(SEPARATOR + msg)
                 user_data = input("\n" + " "*4 + "Geben Sie Ihre Logindaten ein: ")
                 if user_data == "" or "," not in user_data:
                     # simple raise to interrupt try block
@@ -226,7 +244,10 @@ class App:
                 print(f"    Benutzername: {user_name}\n    Passwort: {user_pw}")
                 stop1 = True
             except Exception as e:
-                print("\n" + " -"*4 + " "*4 + str(e) +" "*4 + " -"*4 + "\n")
+                self.print_warning(str(e))
+
+                # - - - OPTION BLOCK TWO - - -
+            
                 c2 = 0
                 stop2 = False
                 while not stop2:
@@ -239,8 +260,10 @@ class App:
                         self.print_option_list(title, options)
                         o = int(input("\n" + " "*4 + "Geben Sie den passenden Wert ein: "))
                         if o == 0:
-                            stop1 = True
-                            stop2 = True
+                            self.print_message("Sie werden zurück zum Menu Optionen weitergeleitet")
+                            self.screen_initial()
+                            # stop1 = True
+                            # stop2 = True
                         elif o == 1:
                             stop2 = True
                         else:
@@ -260,7 +283,7 @@ class App:
 
         # - - - login context - - -
 
-        print(f"o: {o}, user_class: {user_class}")
+        # print(f"o: {o}, user_class: {user_class}")
         if user_class == 1:
             database = self.kunden
         elif user_class == 2:
@@ -284,7 +307,7 @@ class App:
             raise ValueError("user password hash not found.")
         hash = hash[0]
 
-        print(user,"\n",hash)
+        # print(f"{user}\n{hash}")
         # sys.exit(0)        
 
         hash_salt = hash["salt"]
@@ -300,7 +323,144 @@ class App:
         attempt_hash = pbkdf2_hmac("sha256", user_pw.encode(), b64_salt, hash_iter)
 
         if compare_digest(attempt_hash, b64_hash):
-            response = {"access":True, "user":user}
+            """MR001 'Kunden erkennen' """
+            self.user_loggedin = user
+            self.print_warning(f"User {self.user_loggedin["id"]}: login successful.")
+            self.create_order({"access":True, "user":user})
+        else:
+            self.print_warning("Login fehlerhaft. Sie werden zurück zur Menu Optionen weitergeleitet.")
+            self.screen_initial()
 
-        return response
-    
+        raise InterruptedError("unexpected point at App.login_user have been reached.")
+
+
+    def create_order(self, rsp_login: dict) -> None:
+        """ MR002 'Pizza auswählen, bestätigen, wiederholen'
+            implements the order process with choice menu
+            {"id": 10, "name":"Margherita", "size":"M", "price": 6.50, "currency":"EUR"},
+            """
+
+        NEW_ORDERS = []
+        PERMITTED_CODES = [p["id"] for p in PIZZAS]
+        print(" "*4 + " -"*20)
+        self.print_message("Sii benvenuto alla pizzeria di Radu. Sentiti libero di sentirti a tuo agio, Belo!")
+
+        pizza_title = "Pizza Menu"
+        pizza_options = dict()
+        for x in [{p["id"]: f'{p["name"]:<20s}{p["size"]:<4s}{p["price"]:>6s} EUR'} for p in PIZZAS]:
+            k, v = next(iter(x.items()))
+            pizza_options[k] = v
+        self.print_option_list(pizza_title, pizza_options)
+
+        # - - - WHILE ONE - - -
+
+        stop1 = False
+        while not stop1:
+            counter = 0
+            msg = " "*4 + "Bitte geben Sie Ihre Bestellung nach 'Pizza Code' ein."
+            msg += "\n" + " "*4 + "Geben Sie 0, um die Bestellung zu beenden"
+            msg += "\n" + " "*4 + "     oder 1, um den Pizza Menu zu wiederholen.\n"
+            print(msg)
+
+            stop2 = False
+            while not stop2:
+                p_id = input(" "*4 +"Gewünschter Code: ")
+                if p_id == "0":
+                    if len(NEW_ORDERS) > 0:
+                        # show the order
+                        stop2 = True
+                    else:
+                        self.print_message("Sie haben keine Pizza bestellt. Möchten Sie wiederholen?")
+                elif p_id == "1":
+                    print("\n\n")
+                    self.print_option_list(pizza_title, pizza_options)
+                elif p_id in PERMITTED_CODES:
+                    # create / add to order -> add an elem to ORDERS LIST
+                    order = {"client_id": self.user_loggedin["id"], "pizza_id":p_id, "order_status":0, "payment_status":0}
+                    NEW_ORDERS.append(order)
+                    self.log_event(f"user {self.user_loggedin["id"]} ordered: {str(order)}")
+                else:
+                    self.print_warning("Sie haben einen ungültigen Code eingegeben.")
+
+
+                if p_id == "0":
+                    """MR005 'Bestellung einsehen' """
+                    self.log_event(f"user {self.user_loggedin["id"]} calls the bill to confirm.")
+                    msg = "\n" + " "*4 + f"Va bene Belo {self.user_loggedin["name"]}. Preparo subito il suo ordine. Buon appetito!"
+                    msg += "\n" + " "*4 + " -"*20
+                    msg += "\n\n" + " "*4 + "Ihre Bestellung ist die folgende: \n"
+                    print(msg)
+
+                    total = 0
+                    qty = len(NEW_ORDERS)
+                    for o in NEW_ORDERS:
+                        pizza_obj = list(filter(lambda x: x["id"] == o["pizza_id"], PIZZAS))[0]
+                        total += float(pizza_obj["price"])
+                        order_str = " "*6 + f'{pizza_obj["name"]:<20s}{pizza_obj["size"]:<4s}{pizza_obj["price"]:>6s} EUR'
+                        print(order_str)
+                    msg = " "*4 + " -"*20
+                    msg += "\n" + " "*6 + f"Belo {self.user_loggedin["name"]}, Ihre Bestellung enthält {qty} Pizz{"en" if qty > 1 else "a"}."
+                    msg += "\n" + " "*6 + f"Gesamtkosten: {total:8.2f} EUR, MwSt Niemals."
+                    print(msg)
+
+                    msg += "\n" + " "*4 + " -"*20
+                    msg = "\n" + " "*4 + "Sie haben Ihre Bestellungsliste vorübergehende beendet. Bitte drucken Sie:"
+                    msg += "\n" + " "*6 + "<ENTER> um Ihre Bestellung zu bestätigen und weiter zur Bezahlung gehen"
+                    msg += "\n" + " "*6 + "  0     um den Vorgang zu wiederholen. Ihre Bestellung wird gespeichert. "
+                    msg += "\n" + " "*6 + "  1     um den Vorgang abzubrechen. Ihre Bestellung wird gelöscht. \n"
+                    print(msg)
+
+                    stop3 = False
+                    while not stop3:
+                        o = input(" "*6 + "Wie möchten Sie weiter: ")
+                        print("\n\n")
+                        if o == "":
+                            self.log_event(f"user {self.user_loggedin["id"]} confirms the order and follow to payment.")
+                            ORDERS.extend(NEW_ORDERS)
+                            self.payment_process()
+                            stop1 = True
+                            stop2 = True
+                            stop3 = True
+                        elif o == "0":
+                            stop2 = True
+                            stop3 = True
+                        elif o == "1":
+                            self.log_event(f"user {self.user_loggedin["id"]} cancels the order and terminate the execution.")
+                            msg = "\n" + " "*4 + " -"*20
+                            msg += "\n" + " "*4 + "Ihr Vorgang wurde abgebrochen und Ihre Bestellung gelöscht.\n"
+                            msg += "\n" + " "*4 + "Grazie per la sua visita.\nCiao Belo!\n"
+                            print(msg)
+                            self.terminate()
+                        else:
+                            msg = "\n" + " "*4 + " -"*20
+                            msg += "\n" + " "*4 + "Bitte geben Sie eine gültige Option ein: <ENTER> , 0 oder 1.\n"
+                            print(msg)
+
+
+        raise InterruptedError("unexpected point at App.create_order have been reached.")
+
+
+    def payment_process(self):
+        """MR004 'Zahlung erstellen, Bestellung bezahlen' 
+            use 2% from random to cancel the payment due technical factors
+            use 1% for insuficient founds
+        """
+
+        n = random()
+        if n <= 0.01:
+            # w/o founds
+            # cancel order and visit
+            pass
+        elif n <= 0.03:
+            # technical interruption e.g. phone line / internet
+            # show excuse message and terminate
+            pass
+        else:
+            # really a pass, go ahead.
+            pass
+
+        print("WE ARE AT PAYMENT PROCESS.\nCALL TERMINATE()\n"+" -"*20)
+        for o in ORDERS:
+            print(o)
+        self.terminate()
+        # sys.exit(0)
