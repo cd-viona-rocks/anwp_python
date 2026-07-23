@@ -21,7 +21,7 @@ class Kunde(Person):
                 person_args[key] = kwargs[key]
 
         super().__init__(**person_args)
-        self.kundennummer: str = kwargs.get("client_number", "")
+        self.client_number: str = kwargs.get("client_number", "")
 
         # *** NOTE : for instantiation, use person_id as client_nr
 

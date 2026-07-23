@@ -22,8 +22,8 @@ class Lieferant(Person):
 
         super().__init__(**person_args)
         # self.fahrzeugKlasse: str = kwargs.get("vehicle_type", "")
-        self.fahrzeugKlasse: str = choice(["Auto", "Truck", "Bicicle", "Motocicle"])
-        self.standort: str = kwargs.get("city", "")
+        self.vehicle: str = choice(["Auto", "Truck", "Bicicle", "Motocicle"])
+        self.city: str = kwargs.get("city", "")
 
         # get vehicle from choice(["Auto", "Truck", "Bicicle", "Motocicle"])
         # get standort from city

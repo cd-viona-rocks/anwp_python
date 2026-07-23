@@ -26,6 +26,7 @@ class App:
         self.mitarbeiter = []
         self.lieferanten = []
 
+        self.user_loggedin = None
         self.user_classes = []
 
         self.hashes = []
@@ -42,11 +43,16 @@ class App:
         msg = f"\ntry this examples:\n{self.kunden[0]}\n{self.mitarbeiter[0]},\n{self.lieferanten[0]}\n"
         print(msg)
 
+        # Activity Block "Anmelden"
         user_class = self.screen_initial()
         response = self.user_login(*user_class)
 
         # ONLY FOR TESTS
-        print(f"response from login: {response}")
+        print(f"\nresponse from login: \n{response}\n")
+
+        # Activity Block "Kunden erkennen"
+        if response["access"]:
+            self.user_loggedin = response["user"]
 
 
 
@@ -194,7 +200,7 @@ class App:
         options = {}
 
         c1 = 0
-        response = False
+        response = {"access": False, "user": None}
 
         # - - - menu context - - -
 
@@ -266,17 +272,19 @@ class App:
 
         # print(f"len database: {len(database)}\ne.g. database: {database[0]}")
 
+        # user name must be unique
         user = list(filter(lambda x: x["name"] == user_name, database))
         if len(user) != 1:
             raise ValueError("user data not found.")
         user = user[0]
 
+        # can more than one pw be equals ?!?!?! i don't know. Banana12341234@!
         hash = list(filter(lambda x: x["user_id"] == user["id"], self.hashes))
         if len(hash) != 1:
             raise ValueError("user password hash not found.")
         hash = hash[0]
 
-        # print(user,hash)
+        print(user,"\n",hash)
         # sys.exit(0)        
 
         hash_salt = hash["salt"]
@@ -285,27 +293,14 @@ class App:
 
         # * * * PLEASE NOT, THAT A TABLE USER (as our people.csv) NEVER MUST SAVE THE PASS * * * 
         # * * * THE PASS IS PRIVATE FOR THE USER. WE SAVE PW FOR EDUCATIONAL USE ! ! ! * * * 
-        # derived = pbkdf2_hmac(
-        #     "sha256", 
-        #     user_pw.encode("utf-8"), 
-        #     hash_salt, 
-        #     hash_iter
-        # )
-        # if hash_saved == f"pbkdf2_sha256${hash_iter}${hash_salt.hex()}${derived.hex()}":
-        #     response = True    
-
-        # import base64, hashlib, hmac
-
-        # salt_b64 = saved_salt_b64   # from storage (string)
-        # iters = saved_iters
-        b64_hash = b64decode(hash_saved)
+        
         b64_salt = b64decode(hash_salt)  # <-- back to bytes
+        b64_hash = b64decode(hash_saved)
 
         attempt_hash = pbkdf2_hmac("sha256", user_pw.encode(), b64_salt, hash_iter)
 
         if compare_digest(attempt_hash, b64_hash):
-            print("ok")
-       
+            response = {"access":True, "user":user}
 
         return response
     
