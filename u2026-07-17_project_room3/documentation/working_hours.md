@@ -15,6 +15,21 @@
    some changes at classes Kunde, Mitarb., Liefer. to english variable names  
    NEXT: implement login, pizza choice .. up to order creation  
 
+ * 22.07.2026, Mi, AnwP-GUI 10:35-12:30
+  decision about classes and activity, logic for programm
+
+ * 22.07.2026, Mi, AnwP-GUI 15:00-17:30
+  logic of screens
+
+ * 23.07.2026, Do, AnwP-GUI 09:05-12:30
+  logic of screens, anmelden, user_login
+
+ * 23.07.2026, Do, AnwP-GUI 13:00-13:30
+  entwicklung, pizza menu
+
+ * 23.07.2026, Do, AnwP-GUI 16:00-20:00
+  entwicklung pizza menu, log events create orders, confirm order, go to payment
+
 
 
 ## NEXT

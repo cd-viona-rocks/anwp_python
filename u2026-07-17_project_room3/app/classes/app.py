@@ -416,6 +416,8 @@ class App:
                         print("\n\n")
                         if o == "":
                             self.log_event(f"user {self.user_loggedin["id"]} confirms the order and follow to payment.")
+                            for o in NEW_ORDERS:
+                                o["order_status"] = 1
                             ORDERS.extend(NEW_ORDERS)
                             self.payment_process()
                             stop1 = True
@@ -446,18 +448,29 @@ class App:
             use 1% for insuficient founds
         """
 
+        # TODO
+
         n = random()
         if n <= 0.01:
             # w/o founds
             # cancel order and visit
+            # terminate
             pass
         elif n <= 0.03:
             # technical interruption e.g. phone line / internet
-            # show excuse message and terminate
+            # show excuse message
+            # terminate
             pass
         else:
             # really a pass, go ahead.
+            # wait some secs, then show payment proceeded. 
+            # update payment status - TODO needed a way to follow order/paym status.
+            # prepare my pizza.
+            # show my order
+            # ahead to self.prepare_pizza()
             pass
+
+        # raise unexpected point
 
         print("WE ARE AT PAYMENT PROCESS.\nCALL TERMINATE()\n"+" -"*20)
         for o in ORDERS:
